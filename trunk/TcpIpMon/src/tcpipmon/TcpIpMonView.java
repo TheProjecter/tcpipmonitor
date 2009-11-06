@@ -16,6 +16,7 @@ import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 import tcpipmon.resources.MonitorApp;
 
 /**
@@ -55,11 +56,19 @@ public class TcpIpMonView extends FrameView {
         }
     }
 
+    public JTabbedPane getMonitorsTabbedPane(){
+        return this.jTabbedPane1;
+    }
+
     public TcpIpMonView(SingleFrameApplication app) {
         super(app);
 
         initComponents();
+        //create monitor manager
+        monitorManager = new MonitorManager(this);
+        monitorManager.addMonitor(); //add first tab
 
+        
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
@@ -135,8 +144,6 @@ public class TcpIpMonView extends FrameView {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        connectionPanel = new javax.swing.JScrollPane();
-        connectionTree = new javax.swing.JTree();
         infoPanel = new javax.swing.JPanel();
         reqTimeLabel = new javax.swing.JLabel();
         resTimeLabel = new javax.swing.JLabel();
@@ -144,6 +151,7 @@ public class TcpIpMonView extends FrameView {
         reqTime = new javax.swing.JTextField();
         resTime = new javax.swing.JTextField();
         jTextField1 = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
         reqResPanel = new javax.swing.JSplitPane();
         requestPanel = new javax.swing.JSplitPane();
         requestHeaderPane = new javax.swing.JScrollPane();
@@ -155,6 +163,7 @@ public class TcpIpMonView extends FrameView {
         responseHeader = new javax.swing.JTextArea();
         responseContentsPane = new javax.swing.JScrollPane();
         responseContents = new javax.swing.JTextArea();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -169,11 +178,6 @@ public class TcpIpMonView extends FrameView {
         testButton = new javax.swing.JButton();
 
         mainPanel.setName("mainPanel"); // NOI18N
-
-        connectionPanel.setName("connectionPanel"); // NOI18N
-
-        connectionTree.setName("connectionTree"); // NOI18N
-        connectionPanel.setViewportView(connectionTree);
 
         infoPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         infoPanel.setName("infoPanel"); // NOI18N
@@ -193,6 +197,15 @@ public class TcpIpMonView extends FrameView {
         jTextField1.setEditable(false);
         jTextField1.setName("jTextField1"); // NOI18N
 
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance().getContext().getResourceMap(TcpIpMonView.class);
+        jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setName("jButton1"); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
         infoPanelLayout.setHorizontalGroup(
@@ -203,7 +216,9 @@ public class TcpIpMonView extends FrameView {
                     .addGroup(infoPanelLayout.createSequentialGroup()
                         .addComponent(typeLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(10, 10, 10)
+                        .addComponent(jButton1))
                     .addGroup(infoPanelLayout.createSequentialGroup()
                         .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(resTimeLabel)
@@ -212,7 +227,7 @@ public class TcpIpMonView extends FrameView {
                         .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(reqTime, javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(resTime, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))))
-                .addGap(68, 68, 68))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         infoPanelLayout.setVerticalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -228,8 +243,9 @@ public class TcpIpMonView extends FrameView {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(typeLabel)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         reqResPanel.setName("reqResPanel"); // NOI18N
@@ -284,29 +300,32 @@ public class TcpIpMonView extends FrameView {
 
         reqResPanel.setRightComponent(responsePanel);
 
+        jTabbedPane1.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT);
+        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(infoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 259, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(connectionPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(reqResPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(infoPanel, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 256, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(reqResPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 515, Short.MAX_VALUE)
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+            .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reqResPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 482, Short.MAX_VALUE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(reqResPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(infoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(connectionPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)))
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -351,7 +370,7 @@ public class TcpIpMonView extends FrameView {
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 722, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 801, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(statusPanelLayout.createSequentialGroup()
@@ -360,7 +379,7 @@ public class TcpIpMonView extends FrameView {
                     .addGroup(statusPanelLayout.createSequentialGroup()
                         .addGap(200, 200, 200)
                         .addComponent(testButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 332, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 411, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -400,11 +419,16 @@ public class TcpIpMonView extends FrameView {
 
     }//GEN-LAST:event_testButtonActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        monitorManager.addMonitor();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JScrollPane connectionPanel;
-    private javax.swing.JTree connectionTree;
     private javax.swing.JPanel infoPanel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
@@ -431,6 +455,7 @@ public class TcpIpMonView extends FrameView {
     private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
 
+    MonitorManager monitorManager;
     private final Timer messageTimer;
     private final Timer busyIconTimer;
     private final Icon idleIcon;
