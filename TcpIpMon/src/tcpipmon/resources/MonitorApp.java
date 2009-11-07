@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.lang.StringUtils;
+import tcpipmon.MonitorItem;
 
 
 public class MonitorApp implements Runnable {
@@ -19,34 +21,43 @@ public class MonitorApp implements Runnable {
     private String remoteHost = "";
     private int remotePort;
     ServerSocket port;
-    TcpIpMonView visApp;
+    MonitorItem monitorItem;
 
     private ArrayList<TcpIpData> tcpDataList = new ArrayList<TcpIpData>();
+    ExecutorService exec = Executors.newCachedThreadPool();
 
-    public boolean startMonitoring(TcpIpMonView visApp, int listenPort, String remoteHost, int remotePort) {
-        ExecutorService exec = Executors.newCachedThreadPool();
+    public boolean startMonitoring(MonitorItem monitorItem, int listenPort, String remoteHost, int remotePort) {
+        
 
         try {
             port = new ServerSocket(listenPort);
 
             setRemoteHost(remoteHost);
             setRemotePort(remotePort);
-            this.visApp = visApp;
+            this.monitorItem = monitorItem;
             
             exec.execute(this);
+
             
         } catch (IOException e) {
             System.out.println(String.format("Error: Could not bind to port [%s]. Another process may own it.", listenPort));
+            return false;
         } catch (Exception e) {
             System.out.println(String.format("Error: Could not bind to port [%s], or a connection was interrupted.", listenPort));
+            return false;
         }
 
-        return false;
+        return true;
     }
+
+    public void stopMonitoring(){
+        exec.shutdownNow();
+    }
+
 
     @Override
     public void run() {
-        ExecutorService exec = Executors.newCachedThreadPool();
+        
         try {
                 while (true) {
                     System.out.println("WAITING FOR CONNECTION");
@@ -54,7 +65,7 @@ public class MonitorApp implements Runnable {
                     exec.execute(new Worker(connection));
                 }
             } catch (IOException e) {
-            System.out.println("Error: Could not bind to port [%s]. Another process may own it.");
+            System.out.println("monitorApp.run() Error: Could not bind to port [%s]. Another process may own it.");
             }
      }
 
@@ -99,7 +110,7 @@ public class MonitorApp implements Runnable {
                 // copy headers
                 long length = copyHeaders(in, out, log);
                 System.out.println("*** Request Content-Length: " + length);
-                
+                log.flush();
                 tcpData.setRequestHeader(logStr.toString());
                 
                  // clear log
@@ -107,13 +118,16 @@ public class MonitorApp implements Runnable {
 
                 // copy content
                 copyContent(in, out, log, length);
-                out.flush();
+                
                 log.flush();
 
                 System.out.println("**** REQUEST ******");
                 System.out.println(logStr.toString());
                 tcpData.setRequest(logStr.toString());
+                monitorItem.onRequestSend(tcpData);
 
+
+                out.flush();
 
                 // Get the response
                 in = new BufferedInputStream(sock.getInputStream());
@@ -126,7 +140,7 @@ public class MonitorApp implements Runnable {
                 // copy headers
                 length = copyHeaders(in, out, log);
                 System.out.println("*** Response Content-Length: " + length);
-
+                log.flush();
                 tcpData.setResponseHeader(logStr.toString());
                 logStr.reset();
 
@@ -144,10 +158,7 @@ public class MonitorApp implements Runnable {
 
                 tcpDataList.add(tcpData);
 
-                visApp.notifyRequestListener(tcpData);
-                visApp.notifyResponseListener(tcpData);
-                visApp.notifyRequestHeaderListener(tcpData);
-                visApp.notifyResponseHeaderListener(tcpData);
+                monitorItem.onResponseReceived();
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -177,7 +188,7 @@ public class MonitorApp implements Runnable {
                 if (line.length() == 0) {
                     finished = true;
                 } else if (new String(line).startsWith("Content-Length: ")) {
-                    length = Long.parseLong(line);
+                    length = Long.parseLong(StringUtils.substringAfter(line, "Content-Length: "));
                 }
                 writeLine(out, line);
                 writeLine(log, line);

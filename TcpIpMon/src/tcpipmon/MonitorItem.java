@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import tcpipmon.resources.TcpIpData;
+import tcpipmon.resources.MonitorApp;
 /**
  *
  * @author Slawek
@@ -31,12 +32,15 @@ public class MonitorItem {
     private javax.swing.JButton jButtonStart;
 
     //vector of test requests
-    private Vector<String> requestVector;
+    private Vector<TcpIpData> requestVector;
+
+    MonitorApp monitorApp;
 
     MonitorItem(MonitorManager manager){
         this.manager = manager;
         this.monitorPanel = createMonitorPanel();
-        this.requestVector = new Vector<String>();
+        this.requestVector = new Vector<TcpIpData>();
+        this.monitorApp = new MonitorApp();
     }
 
     private JPanel createMonitorPanel(){
@@ -166,12 +170,18 @@ public class MonitorItem {
 
     private void jButtonStartActionPerformed(ActionEvent event){
         if(jButtonStart.getText().equals("Start")){
-            jButtonStart.setText("Stop");
-            setSettingFieldsEnabled(false);
+            
+            //TODO: add some validation
+            int listenPort = Integer.parseInt(jTextFieldListenPort.getText());
+            int remotePort = Integer.parseInt(jTextFieldRemotePort.getText());
+            String remoteHost = jTextFieldRemoteHost.getText();
 
-            //just for test add some item to list
-            requestVector.add(requestVector.size()+"(test) request to host: " + jTextFieldRemoteHost.getText());
-            jListRequests.setListData(requestVector);
+            if(monitorApp.startMonitoring(this, listenPort, remoteHost, remotePort)){
+                jButtonStart.setText("Stop");
+                setSettingFieldsEnabled(false);
+            } else {
+                monitorApp.stopMonitoring();
+            }
         } else {
             jButtonStart.setText("Start");
             setSettingFieldsEnabled(true);          
@@ -181,14 +191,22 @@ public class MonitorItem {
     }
 
     private void jListRequestsItemSelected(ListSelectionEvent event){
-        TcpIpData data = new TcpIpData();
 
-        String listItem = requestVector.get(jListRequests.getSelectedIndex());
-        data.setRequestHeader("test header of test request: " + listItem);
-        data.setRequest("test content of request: " + listItem);
+        int selectedIndex = jListRequests.getSelectedIndex();
 
-        this.manager.getMonitorUi().notifyRequestHeaderListener(data);
-        this.manager.getMonitorUi().notifyRequestListener(data);
+        if(selectedIndex == -1) {
+            return; //no selection
+        } else if(selectedIndex > requestVector.size() - 1){
+            System.out.println("MonitorItem.jListRequestsItemSelected Error: out of vector size selection (" + selectedIndex+ ")");
+
+        } else {
+            TcpIpData selectedItem = requestVector.get(selectedIndex);
+
+            this.manager.getMonitorUi().notifyRequestHeaderListener(selectedItem);
+            this.manager.getMonitorUi().notifyRequestListener(selectedItem);
+            this.manager.getMonitorUi().notifyResponseHeaderListener(selectedItem);
+            this.manager.getMonitorUi().notifyResponseListener(selectedItem);
+        }
     }
     
     private void setSettingFieldsEnabled(boolean enabled){
@@ -197,6 +215,15 @@ public class MonitorItem {
         jTextFieldRemotePort.setEnabled(enabled);
     }
 
+    public void onRequestSend(TcpIpData data){
+        requestVector.add(data);
+        jListRequests.setListData(requestVector);
+    }
+
+    public void onResponseReceived(){
+        //refresh list
+        jListRequests.setListData(requestVector);
+    }
 
 
     /**
