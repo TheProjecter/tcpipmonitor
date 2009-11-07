@@ -1,6 +1,7 @@
 package tcpipmon.resources;
 
 import java.net.URL;
+import org.apache.commons.lang.StringUtils;
 
 public class TcpIpData {
 
@@ -11,6 +12,16 @@ public class TcpIpData {
         private String responseBody;
 	private String response;
 	private URL toAddress;
+
+        public String toString(){
+            String resp = "waiting for response";
+            if(StringUtils.isNotBlank(responseHeader)){
+                //trying to extract response status
+                resp = StringUtils.substringBefore(responseHeader, "\n");
+                resp = StringUtils.substringAfter(resp, " ");
+            }
+            return StringUtils.substringBefore(requestHeader, "HTTP") + " -> " + resp;
+        }
 
 	public void setToAddress(URL toAddress){
 		this.toAddress = toAddress;
