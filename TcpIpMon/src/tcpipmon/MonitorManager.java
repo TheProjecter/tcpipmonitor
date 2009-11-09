@@ -12,17 +12,17 @@ import java.util.ArrayList;
  */
 public class MonitorManager {
     private TcpIpMonView monitorUi;
-    private ArrayList<MonitorItem> monitors;
+    private ArrayList<MonitorPanel> monitors;
 
     public MonitorManager(TcpIpMonView monitorUi){
         this.monitorUi = monitorUi;
-        this.monitors = new ArrayList<MonitorItem>();
+        this.monitors = new ArrayList<MonitorPanel>();
     }
 
     public void addMonitor(){
-        MonitorItem monitor = new MonitorItem(this);
+        MonitorPanel monitor = new MonitorPanel(this);
         monitors.add(monitor);
-        getMonitorUi().getMonitorsTabbedPane().addTab("newTab", monitor.getMonitorPanel());
+        getMonitorUi().getMonitorsTabbedPane().addTab("newTab", monitor);
 
     }
 
