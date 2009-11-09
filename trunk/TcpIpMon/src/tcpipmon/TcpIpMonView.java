@@ -17,7 +17,6 @@ import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
-import tcpipmon.resources.MonitorApp;
 
 /**
  * The application's main frame.

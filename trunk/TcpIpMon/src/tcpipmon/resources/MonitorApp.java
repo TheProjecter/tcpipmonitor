@@ -1,6 +1,5 @@
 package tcpipmon.resources;
 
-import tcpipmon.TcpIpMonView;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,49 +8,77 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
-import tcpipmon.MonitorItem;
+import tcpipmon.MonitorPanel;
 
 
 public class MonitorApp implements Runnable {
+    private static final Logger LOGGER = Logger.getLogger(MonitorApp.class.getName());
 
     private String remoteHost = "";
     private int remotePort;
     ServerSocket port;
-    MonitorItem monitorItem;
+    Socket listenerSocket;
+    MonitorPanel monitorPanel;
+    int listenPort;
+    boolean run = true;
 
     private ArrayList<TcpIpData> tcpDataList = new ArrayList<TcpIpData>();
-    ExecutorService exec = Executors.newCachedThreadPool();
+    ExecutorService exec;
 
-    public boolean startMonitoring(MonitorItem monitorItem, int listenPort, String remoteHost, int remotePort) {
-        
+    public boolean startMonitoring(MonitorPanel monitorPanel, int listenPort, String remoteHost, int remotePort) {
+        exec = Executors.newCachedThreadPool();
 
         try {
+            this.listenPort = listenPort;
             port = new ServerSocket(listenPort);
 
             setRemoteHost(remoteHost);
             setRemotePort(remotePort);
-            this.monitorItem = monitorItem;
-            
+            this.monitorPanel = monitorPanel;
+
+            run = true;
             exec.execute(this);
 
             
         } catch (IOException e) {
             System.out.println(String.format("Error: Could not bind to port [%s]. Another process may own it.", listenPort));
+            closeSocket();
             return false;
         } catch (Exception e) {
-            System.out.println(String.format("Error: Could not bind to port [%s], or a connection was interrupted.", listenPort));
+            closeSocket();
+            LOGGER.log(Level.SEVERE, "startMonitoring: error occured executing listener thread.", e);
             return false;
         }
 
         return true;
     }
 
-    public void stopMonitoring(){
+    public void stopMonitoringNow(){
         exec.shutdownNow();
+        run = false;
+        closeSocket();        
+    }
+
+    public void stopMonitoring(){        
+        exec.shutdown();
+        run = false;
+        closeSocket();
+    }
+
+    private void closeSocket(){
+        try {
+            port.close();
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "closeSocker: error occured closing server socket.", ex);
+        }
     }
 
 
@@ -59,14 +86,17 @@ public class MonitorApp implements Runnable {
     public void run() {
         
         try {
-                while (true) {
-                    System.out.println("WAITING FOR CONNECTION");
-                    Socket connection = port.accept();
-                    exec.execute(new Worker(connection));
-                }
-            } catch (IOException e) {
-            System.out.println("monitorApp.run() Error: Could not bind to port [%s]. Another process may own it.");
+            while (run) {
+                LOGGER.log(Level.INFO, "run:WAITING FOR CONNECTION");
+                listenerSocket = port.accept();
+
+                exec.execute(new Worker(listenerSocket, this));
             }
+        } catch (SocketException se){
+            LOGGER.log(Level.INFO, "run: socket server was closed -> accept() interrupted.");
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "run: error occured listening for connection on port: " + listenPort);
+        }
      }
 
     public void setRemoteHost(String remoteHost) {
@@ -83,11 +113,14 @@ public class MonitorApp implements Runnable {
 
     private class Worker implements Runnable {
 
-        private Socket connection;
+        private Socket listenerConnection;
+        private Socket remoteConnection;
         private boolean usesCR = false;
+        private MonitorApp monitor;
 
-        public Worker(Socket connection) {
-            this.connection = connection;
+        public Worker(Socket connection, MonitorApp monitor) {
+            this.listenerConnection = connection;
+            this.monitor = monitor;
         }
 
         @Override
@@ -97,11 +130,11 @@ public class MonitorApp implements Runnable {
                 TcpIpData tcpData = new TcpIpData();
 
                 // Get the request
-                InputStream in = new BufferedInputStream(connection.getInputStream());
+                InputStream in = new BufferedInputStream(listenerConnection.getInputStream());
 
                 // get the destination
-                Socket sock = new Socket(remoteHost, remotePort);
-                OutputStream out = new BufferedOutputStream(sock.getOutputStream());
+                remoteConnection = new Socket(remoteHost, remotePort);
+                OutputStream out = new BufferedOutputStream(remoteConnection.getOutputStream());
 
                 // get the log
                 ByteArrayOutputStream logStr = new ByteArrayOutputStream();
@@ -109,6 +142,7 @@ public class MonitorApp implements Runnable {
 
                 // copy headers
                 long length = copyHeaders(in, out, log);
+
                 System.out.println("*** Request Content-Length: " + length);
                 log.flush();
                 tcpData.setRequestHeader(logStr.toString());
@@ -121,18 +155,18 @@ public class MonitorApp implements Runnable {
                 
                 log.flush();
 
-                System.out.println("**** REQUEST ******");
-                System.out.println(logStr.toString());
+                System.out.println("**** REQUEST: " + tcpData.toString());
+                //System.out.println(logStr.toString());
                 tcpData.setRequest(logStr.toString());
-                monitorItem.onRequestSend(tcpData);
+                monitorPanel.onRequestSend(tcpData);
 
 
                 out.flush();
 
                 // Get the response
-                in = new BufferedInputStream(sock.getInputStream());
+                in = new BufferedInputStream(remoteConnection.getInputStream());
                 // get the source
-                out = new BufferedOutputStream(connection.getOutputStream());
+                out = new BufferedOutputStream(listenerConnection.getOutputStream());
 
                 // clear log
                 logStr.reset();
@@ -149,8 +183,8 @@ public class MonitorApp implements Runnable {
                 out.flush();
                 log.flush();
 
-                System.out.println("**** REPONSE ******");
-                System.out.println(logStr.toString());
+                System.out.println("**** REPONSE: " + tcpData.toString());
+               // System.out.println(logStr.toString());
                 tcpData.setResponse(logStr.toString());
 
                 //sock.close();
@@ -158,10 +192,28 @@ public class MonitorApp implements Runnable {
 
                 tcpDataList.add(tcpData);
 
-                monitorItem.onResponseReceived();
+                monitorPanel.onResponseReceived();
 
+            } catch(UnknownHostException uhe){
+                //
             } catch (IOException e) {
                 e.printStackTrace();
+
+            } finally {
+                if(remoteConnection!= null){
+                    try{
+                        remoteConnection.close();
+                    } catch(IOException e){
+                        System.out.println("Worker.run: error occured closing remoteConnection!");
+
+                    }
+                }
+                try{
+                    listenerConnection.close();
+                } catch(IOException e){
+                    System.out.println("Worker.run: error occured closing listenerConnection!");
+
+                }
             }
         }
 
