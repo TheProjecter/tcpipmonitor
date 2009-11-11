@@ -1,0 +1,1 @@
+<?xml version="1.0"?><TcpIpMonitorConfig><StoredMonitors><Monitor id="1" remoteHost="asdf" remotePort="1243" listenerPort="1"><AutoStart>false</AutoStart><Name>monitor1</Name></Monitor><Monitor id="2" remoteHost="test" remotePort="3344" listenerPort="2"><AutoStart>false</AutoStart><Name>monitor2</Name></Monitor></StoredMonitors></TcpIpMonitorConfig>

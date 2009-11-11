@@ -24,10 +24,12 @@ public class MonitorPanel extends javax.swing.JPanel {
     MonitorManager manager;
     Vector<TcpIpData> requestVector;
     MonitorApp monitorApp;
+    private long id;
 
     /** Creates new form MonitorPanel */
-    public MonitorPanel(MonitorManager manager){
+    public MonitorPanel(MonitorManager manager, Long id){
         initComponents();
+        this.id = id;
         jLabelErrorMessage.setMaximumSize(new Dimension(200, 200));
 
         this.manager = manager;
@@ -36,6 +38,27 @@ public class MonitorPanel extends javax.swing.JPanel {
         
     }
 
+    public MonitorPanel(MonitorManager manager, MonitorModel model){
+        this(manager, model.getId());
+        //TODO: until we do not have valiation, assume that port 0 is empty value
+        String listenPort = "";
+        String remotePort = "";
+        
+        if(model.getListenerPort() != 0){
+            listenPort = String.valueOf(model.getListenerPort());
+        }
+        
+        if(model.getRemotePort() != 0){
+            remotePort = String.valueOf(model.getRemotePort());
+        }
+        jTextFieldListenPort.setText(listenPort);
+        jTextFieldRemoteHost.setText(model.getRemoteHost());
+        jTextFieldRemotePort.setText(remotePort);
+
+        if(model.isAutoStart()){
+            jButtonStartActionPerformed(null);
+        }
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -363,6 +386,28 @@ public class MonitorPanel extends javax.swing.JPanel {
         }
     }
 
+    public MonitorModel getModel(){
+        MonitorModel model = new MonitorModel();
+        model.setAutoStart(false);
+        model.setName("monitor" + Long.toString(getId()));
+        model.setId(getId());
+        //until we do not have validation init ports with zero
+        long listenerPort = 0;
+        long remotePort = 0;
+        if(StringUtils.isNotBlank(jTextFieldListenPort.getText())){
+            listenerPort = Long.parseLong(jTextFieldListenPort.getText());
+        }
+        if(StringUtils.isNotBlank(jTextFieldRemotePort.getText())){
+            remotePort = Long.parseLong(jTextFieldRemotePort.getText());
+        }
+        model.setListenerPort(listenerPort);
+        model.setRemotePort(remotePort);
+        model.setRemoteHost(jTextFieldRemoteHost.getText());
+
+        model.setListenerPort(id);
+        return model;
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonCloseError;
     private javax.swing.JButton jButtonStart;
@@ -382,5 +427,19 @@ public class MonitorPanel extends javax.swing.JPanel {
     private javax.swing.JTextField jTextFieldRemoteHost;
     private javax.swing.JTextField jTextFieldRemotePort;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * @param id the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
 
 }
