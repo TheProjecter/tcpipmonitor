@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Container class="javax.swing.JPopupMenu" name="jPopupMenuTabMonitor">
+      <Properties>
+        <Property name="label" type="java.lang.String" value="Monitor Menu"/>
+        <Property name="name" type="java.lang.String" value="jPopupMenuTabMonitor" noResource="true"/>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <MenuItem class="javax.swing.JMenuItem" name="jMenuItemClose">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Close Monitor"/>
+            <Property name="name" type="java.lang.String" value="jMenuItemClose" noResource="true"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemCloseActionPerformed"/>
+          </Events>
+        </MenuItem>
+      </SubComponents>
+    </Container>
+  </NonVisualComponents>
   <Properties>
+    <Property name="componentPopupMenu" type="javax.swing.JPopupMenu" editor="org.netbeans.modules.form.ComponentChooserEditor">
+      <ComponentRef name="jPopupMenuTabMonitor"/>
+    </Property>
     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
       <Dimension value="[255, 330]"/>
     </Property>
@@ -26,13 +52,13 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jPanelTop" alignment="0" min="-2" max="-2" attributes="1"/>
+                  <Component id="jPanelBottom" alignment="0" min="-2" pref="264" max="-2" attributes="1"/>
                   <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="jPanelBottom" alignment="0" pref="254" max="32767" attributes="1"/>
-                      <Component id="jPanelError" alignment="0" max="32767" attributes="1"/>
+                      <Component id="jPanelError" alignment="1" max="32767" attributes="1"/>
+                      <Component id="jPanelTop" alignment="1" max="32767" attributes="1"/>
                   </Group>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -43,7 +69,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanelError" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jPanelBottom" pref="214" max="32767" attributes="0"/>
+              <Component id="jPanelBottom" pref="208" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -60,10 +86,15 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jButtonStart" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="208" max="32767" attributes="0"/>
               </Group>
-              <Component id="jPanelConfig" alignment="0" max="32767" attributes="0"/>
-              <Component id="jPanelInfo" alignment="0" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="jPanelConfig" max="32767" attributes="1"/>
+                      <Component id="jPanelInfo" alignment="0" min="-2" max="-2" attributes="1"/>
+                  </Group>
+                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                  <Component id="jButtonClose" min="-2" max="-2" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -75,6 +106,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jButtonStart" min="-2" max="-2" attributes="0"/>
               </Group>
+              <Component id="jButtonClose" alignment="0" min="-2" pref="12" max="-2" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -94,7 +126,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabelMonitorInfo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="200" max="32767" attributes="0"/>
+                      <EmptySpace pref="148" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -132,8 +164,13 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabelListenPort" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Group type="102" alignment="1" attributes="1">
+                              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                              <Component id="jCheckBoxAutoStart" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="jLabelListenPort" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="jLabelRemoteHost" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -147,7 +184,7 @@
                           <Component id="jTextFieldListenPort" max="32767" attributes="1"/>
                           <Component id="jTextFieldRemotePort" alignment="0" pref="36" max="32767" attributes="1"/>
                       </Group>
-                      <EmptySpace pref="62" max="32767" attributes="0"/>
+                      <EmptySpace pref="14" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -158,13 +195,14 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabelRemoteHost" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabelRemotePort" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jTextFieldRemoteHost" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jTextFieldRemotePort" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jTextFieldRemoteHost" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabelListenPort" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jTextFieldListenPort" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jCheckBoxAutoStart" alignment="3" min="-2" pref="16" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -193,19 +231,58 @@
               <Properties>
                 <Property name="name" type="java.lang.String" value="jTextFieldRemoteHost" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldRemoteHostFocusGained"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldRemoteHostFocusLost"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="jTextFieldRemotePort">
               <Properties>
                 <Property name="name" type="java.lang.String" value="jTextFieldRemotePort" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldRemotePortFocusGained"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldRemotePortFocusLost"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="jTextFieldListenPort">
               <Properties>
                 <Property name="name" type="java.lang.String" value="jTextFieldListenPort" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTextFieldListenPortMouseReleased"/>
+                <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldListenPortFocusGained"/>
+                <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="jTextFieldListenPortFocusLost"/>
+                <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextFieldListenPortKeyReleased"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JCheckBox" name="jCheckBoxAutoStart">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Auto start"/>
+                <Property name="toolTipText" type="java.lang.String" value="Do you want to start this monitor when you launch the TcpIpMonitor application?"/>
+                <Property name="name" type="java.lang.String" value="jCheckBoxAutoStart" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCheckBoxAutoStartItemStateChanged"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>
+        <Component class="javax.swing.JButton" name="jButtonClose">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="x"/>
+            <Property name="toolTipText" type="java.lang.String" value="Close this monitor"/>
+            <Property name="contentAreaFilled" type="boolean" value="false"/>
+            <Property name="hideActionText" type="boolean" value="true"/>
+            <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+              <Insets value="[1, 1, 1, 1]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="jButtonClose" noResource="true"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCloseActionPerformed"/>
+          </Events>
+        </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JPanel" name="jPanelBottom">
@@ -219,12 +296,15 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane1" alignment="0" pref="254" max="32767" attributes="0"/>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="jScrollPane1" pref="254" max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane1" alignment="1" pref="214" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" alignment="1" pref="208" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -276,7 +356,7 @@
               <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jLabelErrorMessage" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="229" max="32767" attributes="0"/>
+                  <EmptySpace pref="225" max="32767" attributes="0"/>
                   <Component id="jButtonCloseError" min="-2" pref="13" max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -291,7 +371,7 @@
                           <Component id="jLabelErrorMessage" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="17" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

@@ -57,7 +57,7 @@ public class ConfigXMLFile {
             fileWriter = new FileWriter(CONFIG_FILE_PATH);
             XMLStreamWriter writer = outputFactory.createXMLStreamWriter(fileWriter);
 
-            writer.writeStartDocument("1.0");
+            writer.writeStartDocument();
 
             writer.writeStartElement(ELEMENT_ROOT);
             writer.writeStartElement(ELEMENT_STORED_MONITORS);
