@@ -65,7 +65,11 @@ public class TcpIpMonView extends FrameView {
         initComponents();
         //create monitor manager
         monitorManager = new MonitorManager(this);
-        monitorManager.addMonitor(); //add first tab
+        //load stored monitors
+        monitorManager.loadStoredMonitors();
+        if(jTabbedPane1.getTabCount() == 0){
+            monitorManager.addMonitor(); //add first tab
+        }
 
         
         // status bar initialization - message timeout, idle icon and busy animation, etc
@@ -151,8 +155,6 @@ public class TcpIpMonView extends FrameView {
         resTime = new javax.swing.JTextField();
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
-        jButtonSave = new javax.swing.JButton();
-        jButtonLoad = new javax.swing.JButton();
         reqResPanel = new javax.swing.JSplitPane();
         requestPanel = new javax.swing.JSplitPane();
         requestHeaderPane = new javax.swing.JScrollPane();
@@ -206,22 +208,6 @@ public class TcpIpMonView extends FrameView {
             }
         });
 
-        jButtonSave.setText(resourceMap.getString("jButtonSave.text")); // NOI18N
-        jButtonSave.setName("jButtonSave"); // NOI18N
-        jButtonSave.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSaveActionPerformed(evt);
-            }
-        });
-
-        jButtonLoad.setText(resourceMap.getString("jButtonLoad.text")); // NOI18N
-        jButtonLoad.setName("jButtonLoad"); // NOI18N
-        jButtonLoad.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonLoadActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
         infoPanelLayout.setHorizontalGroup(
@@ -236,18 +222,12 @@ public class TcpIpMonView extends FrameView {
                         .addGap(10, 10, 10)
                         .addComponent(jButton1))
                     .addGroup(infoPanelLayout.createSequentialGroup()
-                        .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(infoPanelLayout.createSequentialGroup()
-                                .addComponent(reqTimeLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(reqTime, javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(resTime, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)))
-                            .addComponent(resTimeLabel))
+                        .addComponent(reqTimeLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButtonSave)
-                            .addComponent(jButtonLoad))))
+                        .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(reqTime, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(resTime, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)))
+                    .addComponent(resTimeLabel))
                 .addContainerGap(29, Short.MAX_VALUE))
         );
         infoPanelLayout.setVerticalGroup(
@@ -256,13 +236,11 @@ public class TcpIpMonView extends FrameView {
                 .addContainerGap()
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(reqTimeLabel)
-                    .addComponent(reqTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonSave))
+                    .addComponent(reqTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(resTimeLabel)
-                    .addComponent(resTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonLoad))
+                    .addComponent(resTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(typeLabel)
@@ -348,7 +326,7 @@ public class TcpIpMonView extends FrameView {
                     .addGroup(mainPanelLayout.createSequentialGroup()
                         .addComponent(infoPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)))
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -418,19 +396,9 @@ public class TcpIpMonView extends FrameView {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButtonSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveActionPerformed
-        monitorManager.saveMonitors();
-    }//GEN-LAST:event_jButtonSaveActionPerformed
-
-    private void jButtonLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoadActionPerformed
-        monitorManager.loadStoredMonitors();
-    }//GEN-LAST:event_jButtonLoadActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel infoPanel;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButtonLoad;
-    private javax.swing.JButton jButtonSave;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField jTextField1;

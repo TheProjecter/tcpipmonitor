@@ -10,7 +10,6 @@
  */
 
 package tcpipmon;
-import java.awt.Dimension;
 import java.util.Vector;
 import org.apache.commons.lang.StringUtils;
 import tcpipmon.resources.TcpIpData;
@@ -26,11 +25,17 @@ public class MonitorPanel extends javax.swing.JPanel {
     MonitorApp monitorApp;
     private long id;
 
+    boolean customTitle = false;
+
+    String tempListenerPort = null;
+    String tempRemotePort = null;
+    String tempRemoteHost = null;
+
     /** Creates new form MonitorPanel */
     public MonitorPanel(MonitorManager manager, Long id){
         initComponents();
         this.id = id;
-        jLabelErrorMessage.setMaximumSize(new Dimension(200, 200));
+        //jLabelErrorMessage.setMaximumSize(new Dimension(200, 200));
 
         this.manager = manager;
         this.requestVector = new Vector<TcpIpData>();
@@ -40,7 +45,7 @@ public class MonitorPanel extends javax.swing.JPanel {
 
     public MonitorPanel(MonitorManager manager, MonitorModel model){
         this(manager, model.getId());
-        //TODO: until we do not have valiation, assume that port 0 is empty value
+        //TODO: until we do not have validation, assume that port 0 is empty value
         String listenPort = "";
         String remotePort = "";
         
@@ -56,6 +61,7 @@ public class MonitorPanel extends javax.swing.JPanel {
         jTextFieldRemotePort.setText(remotePort);
 
         if(model.isAutoStart()){
+            jCheckBoxAutoStart.setSelected(true);
             jButtonStartActionPerformed(null);
         }
     }
@@ -68,6 +74,8 @@ public class MonitorPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPopupMenuTabMonitor = new javax.swing.JPopupMenu();
+        jMenuItemClose = new javax.swing.JMenuItem();
         jPanelTop = new javax.swing.JPanel();
         jPanelInfo = new javax.swing.JPanel();
         jLabelMonitorInfo = new javax.swing.JLabel();
@@ -79,6 +87,8 @@ public class MonitorPanel extends javax.swing.JPanel {
         jTextFieldRemoteHost = new javax.swing.JTextField();
         jTextFieldRemotePort = new javax.swing.JTextField();
         jTextFieldListenPort = new javax.swing.JTextField();
+        jCheckBoxAutoStart = new javax.swing.JCheckBox();
+        jButtonClose = new javax.swing.JButton();
         jPanelBottom = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jListRequests = new javax.swing.JList();
@@ -86,6 +96,19 @@ public class MonitorPanel extends javax.swing.JPanel {
         jButtonCloseError = new javax.swing.JButton();
         jLabelErrorMessage = new javax.swing.JLabel();
 
+        jPopupMenuTabMonitor.setLabel("Monitor Menu");
+        jPopupMenuTabMonitor.setName("jPopupMenuTabMonitor"); // NOI18N
+
+        jMenuItemClose.setText("Close Monitor");
+        jMenuItemClose.setName("jMenuItemClose"); // NOI18N
+        jMenuItemClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemCloseActionPerformed(evt);
+            }
+        });
+        jPopupMenuTabMonitor.add(jMenuItemClose);
+
+        setComponentPopupMenu(jPopupMenuTabMonitor);
         setMinimumSize(new java.awt.Dimension(255, 330));
         setPreferredSize(new java.awt.Dimension(255, 365));
 
@@ -105,7 +128,7 @@ public class MonitorPanel extends javax.swing.JPanel {
             .addGroup(jPanelInfoLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabelMonitorInfo)
-                .addContainerGap(200, Short.MAX_VALUE))
+                .addContainerGap(148, Short.MAX_VALUE))
         );
         jPanelInfoLayout.setVerticalGroup(
             jPanelInfoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -132,10 +155,53 @@ public class MonitorPanel extends javax.swing.JPanel {
         jLabelListenPort.setName("jLabelListenPort"); // NOI18N
 
         jTextFieldRemoteHost.setName("jTextFieldRemoteHost"); // NOI18N
+        jTextFieldRemoteHost.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTextFieldRemoteHostFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextFieldRemoteHostFocusLost(evt);
+            }
+        });
 
         jTextFieldRemotePort.setName("jTextFieldRemotePort"); // NOI18N
+        jTextFieldRemotePort.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTextFieldRemotePortFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextFieldRemotePortFocusLost(evt);
+            }
+        });
 
         jTextFieldListenPort.setName("jTextFieldListenPort"); // NOI18N
+        jTextFieldListenPort.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                jTextFieldListenPortMouseReleased(evt);
+            }
+        });
+        jTextFieldListenPort.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jTextFieldListenPortFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                jTextFieldListenPortFocusLost(evt);
+            }
+        });
+        jTextFieldListenPort.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextFieldListenPortKeyReleased(evt);
+            }
+        });
+
+        jCheckBoxAutoStart.setText("Auto start");
+        jCheckBoxAutoStart.setToolTipText("Do you want to start this monitor when you launch the TcpIpMonitor application?");
+        jCheckBoxAutoStart.setName("jCheckBoxAutoStart"); // NOI18N
+        jCheckBoxAutoStart.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBoxAutoStartItemStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanelConfigLayout = new javax.swing.GroupLayout(jPanelConfig);
         jPanelConfig.setLayout(jPanelConfigLayout);
@@ -143,8 +209,12 @@ public class MonitorPanel extends javax.swing.JPanel {
             jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelConfigLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabelListenPort)
+                .addGroup(jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(jPanelConfigLayout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(jCheckBoxAutoStart)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabelListenPort))
                     .addGroup(jPanelConfigLayout.createSequentialGroup()
                         .addComponent(jLabelRemoteHost)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -155,7 +225,7 @@ public class MonitorPanel extends javax.swing.JPanel {
                 .addGroup(jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jTextFieldListenPort)
                     .addComponent(jTextFieldRemotePort, javax.swing.GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
-                .addContainerGap(62, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         jPanelConfigLayout.setVerticalGroup(
             jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -164,13 +234,26 @@ public class MonitorPanel extends javax.swing.JPanel {
                 .addGroup(jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelRemoteHost)
                     .addComponent(jLabelRemotePort)
-                    .addComponent(jTextFieldRemoteHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextFieldRemotePort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldRemotePort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jTextFieldRemoteHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelConfigLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelListenPort)
-                    .addComponent(jTextFieldListenPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jTextFieldListenPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBoxAutoStart, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
+
+        jButtonClose.setText("x");
+        jButtonClose.setToolTipText("Close this monitor");
+        jButtonClose.setContentAreaFilled(false);
+        jButtonClose.setHideActionText(true);
+        jButtonClose.setMargin(new java.awt.Insets(1, 1, 1, 1));
+        jButtonClose.setName("jButtonClose"); // NOI18N
+        jButtonClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCloseActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanelTopLayout = new javax.swing.GroupLayout(jPanelTop);
         jPanelTop.setLayout(jPanelTopLayout);
@@ -178,10 +261,13 @@ public class MonitorPanel extends javax.swing.JPanel {
             jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelTopLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButtonStart)
-                .addContainerGap(208, Short.MAX_VALUE))
-            .addComponent(jPanelConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanelInfo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonStart))
+            .addGroup(jPanelTopLayout.createSequentialGroup()
+                .addGroup(jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanelConfig, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonClose))
         );
         jPanelTopLayout.setVerticalGroup(
             jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -191,6 +277,7 @@ public class MonitorPanel extends javax.swing.JPanel {
                 .addComponent(jPanelInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonStart))
+            .addComponent(jButtonClose, javax.swing.GroupLayout.PREFERRED_SIZE, 12, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         jPanelBottom.setName("jPanelBottom"); // NOI18N
@@ -211,11 +298,13 @@ public class MonitorPanel extends javax.swing.JPanel {
         jPanelBottom.setLayout(jPanelBottomLayout);
         jPanelBottomLayout.setHorizontalGroup(
             jPanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+            .addGroup(jPanelBottomLayout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanelBottomLayout.setVerticalGroup(
             jPanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
         );
 
         jPanelError.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(255, 0, 102), 1, true));
@@ -244,7 +333,7 @@ public class MonitorPanel extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelErrorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabelErrorMessage)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 229, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 225, Short.MAX_VALUE)
                 .addComponent(jButtonCloseError, javax.swing.GroupLayout.PREFERRED_SIZE, 13, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanelErrorLayout.setVerticalGroup(
@@ -255,7 +344,7 @@ public class MonitorPanel extends javax.swing.JPanel {
                     .addGroup(jPanelErrorLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabelErrorMessage)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -264,11 +353,11 @@ public class MonitorPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanelTop, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanelBottom, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(jPanelBottom, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
-                        .addComponent(jPanelError, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanelError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanelTop, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -277,7 +366,7 @@ public class MonitorPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanelError, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelBottom, javax.swing.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE))
+                .addComponent(jPanelBottom, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -324,6 +413,99 @@ public class MonitorPanel extends javax.swing.JPanel {
     private void jButtonCloseErrorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseErrorActionPerformed
         closeAndClearErrorMessage();
     }//GEN-LAST:event_jButtonCloseErrorActionPerformed
+
+    private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
+        closeMonitor();
+    }//GEN-LAST:event_jButtonCloseActionPerformed
+
+    private void jCheckBoxAutoStartItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxAutoStartItemStateChanged
+        manager.saveMonitors();
+    }//GEN-LAST:event_jCheckBoxAutoStartItemStateChanged
+
+    private void jTextFieldListenPortFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldListenPortFocusGained
+        refreshCustomTitleFlag();
+        refreshTempValues();
+    }//GEN-LAST:event_jTextFieldListenPortFocusGained
+
+    private void jTextFieldRemotePortFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldRemotePortFocusGained
+        refreshTempValues();
+    }//GEN-LAST:event_jTextFieldRemotePortFocusGained
+
+    private void jTextFieldRemoteHostFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldRemoteHostFocusGained
+        refreshTempValues();
+    }//GEN-LAST:event_jTextFieldRemoteHostFocusGained
+
+    private void jTextFieldRemoteHostFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldRemoteHostFocusLost
+        if(anyValueChanged()){
+            manager.saveMonitors();
+        }
+    }//GEN-LAST:event_jTextFieldRemoteHostFocusLost
+
+    private void jTextFieldRemotePortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldRemotePortFocusLost
+        if(anyValueChanged()){
+            manager.saveMonitors();
+        }
+    }//GEN-LAST:event_jTextFieldRemotePortFocusLost
+
+    private void jTextFieldListenPortFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jTextFieldListenPortFocusLost
+        if(anyValueChanged()){
+            manager.saveMonitors();
+        }
+    }//GEN-LAST:event_jTextFieldListenPortFocusLost
+
+    private void jTextFieldListenPortKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldListenPortKeyReleased
+        jTextFieldListenPortUpdated();
+    }//GEN-LAST:event_jTextFieldListenPortKeyReleased
+
+    private void jTextFieldListenPortMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextFieldListenPortMouseReleased
+        jTextFieldListenPortUpdated();
+    }//GEN-LAST:event_jTextFieldListenPortMouseReleased
+
+    private void jMenuItemCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemCloseActionPerformed
+        closeMonitor();
+    }//GEN-LAST:event_jMenuItemCloseActionPerformed
+
+    private void closeMonitor(){
+        manager.removeMonitor(this.getId());
+    }
+
+    private void refreshTempValues(){
+        tempListenerPort = jTextFieldListenPort.getText();
+        tempRemoteHost = jTextFieldRemoteHost.getText();
+        tempRemotePort = jTextFieldRemotePort.getText();
+    }
+
+    private boolean anyValueChanged(){
+        if(!tempListenerPort.equals(jTextFieldListenPort.getText())){
+            return true;
+        }
+        if(!tempRemoteHost.equals(jTextFieldRemoteHost.getText())){
+            return true;
+        }
+        if(!tempRemotePort.equals(jTextFieldRemotePort.getText())){
+            return true;
+        }
+        return false;
+    }
+
+    private void jTextFieldListenPortUpdated(){
+        if(!customTitle){
+            manager.setMonitorTabTitle(this,getAutoTitle());
+        }
+    }
+
+    private void refreshCustomTitleFlag(){
+        String title = manager.getMonitorTabTitle(this);
+        if(title.equals("New") || title.equals(getAutoTitle())){
+            customTitle = false;
+        } else {
+            customTitle = true;
+        }
+    }
+
+    private String getAutoTitle(){
+        return "Port " + jTextFieldListenPort.getText();
+    }
 
     private void showInfoMessage(boolean show){
         if(show){
@@ -388,8 +570,8 @@ public class MonitorPanel extends javax.swing.JPanel {
 
     public MonitorModel getModel(){
         MonitorModel model = new MonitorModel();
-        model.setAutoStart(false);
-        model.setName("monitor" + Long.toString(getId()));
+        model.setAutoStart(jCheckBoxAutoStart.isSelected());
+        model.setName(manager.getMonitorTabTitle(this));
         model.setId(getId());
         //until we do not have validation init ports with zero
         long listenerPort = 0;
@@ -404,24 +586,27 @@ public class MonitorPanel extends javax.swing.JPanel {
         model.setRemotePort(remotePort);
         model.setRemoteHost(jTextFieldRemoteHost.getText());
 
-        model.setListenerPort(id);
         return model;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonClose;
     private javax.swing.JButton jButtonCloseError;
     private javax.swing.JButton jButtonStart;
+    private javax.swing.JCheckBox jCheckBoxAutoStart;
     private javax.swing.JLabel jLabelErrorMessage;
     private javax.swing.JLabel jLabelListenPort;
     private javax.swing.JLabel jLabelMonitorInfo;
     private javax.swing.JLabel jLabelRemoteHost;
     private javax.swing.JLabel jLabelRemotePort;
     private javax.swing.JList jListRequests;
+    private javax.swing.JMenuItem jMenuItemClose;
     private javax.swing.JPanel jPanelBottom;
     private javax.swing.JPanel jPanelConfig;
     private javax.swing.JPanel jPanelError;
     private javax.swing.JPanel jPanelInfo;
     private javax.swing.JPanel jPanelTop;
+    private javax.swing.JPopupMenu jPopupMenuTabMonitor;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextFieldListenPort;
     private javax.swing.JTextField jTextFieldRemoteHost;

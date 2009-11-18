@@ -24,7 +24,7 @@ public class MonitorManager {
     public void addMonitor(){
         MonitorPanel monitor = new MonitorPanel(this, getNextId());
         monitors.add(monitor);
-        getMonitorUi().getMonitorsTabbedPane().addTab("newMonitor", monitor);
+        getMonitorUi().getMonitorsTabbedPane().addTab("New", monitor);
 
     }
 
@@ -42,6 +42,31 @@ public class MonitorManager {
         for(MonitorModel monitor: ConfigXMLFile.getConfigXML().getMonitors()){
             addMonitor(monitor);
         }
+    }
+
+    public void removeMonitor(long id){
+        for(MonitorPanel monitor: monitors){
+            if(monitor.getId()==id){
+                monitors.remove(monitor);
+                saveMonitors();
+                getMonitorUi().getMonitorsTabbedPane().remove(monitor);
+                break;
+            }
+        }
+    }
+
+    private int getMonitorPanelTabIndex(MonitorPanel monitor){
+
+       JTabbedPane tp = monitorUi.getMonitorsTabbedPane();
+       return tp.indexOfComponent(monitor);
+    }
+
+    public void setMonitorTabTitle(MonitorPanel monitor, String title){
+        monitorUi.getMonitorsTabbedPane().setTitleAt(getMonitorPanelTabIndex(monitor), title);
+    }
+
+    public String getMonitorTabTitle(MonitorPanel monitor){
+        return monitorUi.getMonitorsTabbedPane().getTitleAt(getMonitorPanelTabIndex(monitor));
     }
 
     private List<MonitorModel> getMonitorModels(){
